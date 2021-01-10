@@ -2,35 +2,38 @@ package main
 
 import "fmt"
 
-// 单向链表 增删改查
+// 双向链表
 
 type HeroNode struct {
 	no       int
 	name     string
 	nickname string
+	pre      *HeroNode
 	next     *HeroNode
 }
 
-func InsertHeroNode(head *HeroNode, heroNode *HeroNode) {
+func InsertHero(head *HeroNode, hero *HeroNode) {
 	temp := head
+
 	for {
 		if temp.next == nil {
 			break
 		}
 		temp = temp.next
 	}
-	temp.next = heroNode
+	temp.next = hero
+	hero.pre = temp
 }
 
-func InsertHeroNode2(head *HeroNode, heroNode *HeroNode) {
+func InsertHero2(head *HeroNode, hero *HeroNode) {
 	temp := head
 	flag := true
 	for {
 		if temp.next == nil {
 			break
-		} else if temp.next.no > heroNode.no {
+		} else if temp.next.no > hero.no {
 			break
-		} else if temp.next.no == heroNode.no {
+		} else if temp.next.no == hero.no {
 			flag = false
 			break
 		}
@@ -38,16 +41,22 @@ func InsertHeroNode2(head *HeroNode, heroNode *HeroNode) {
 	}
 
 	if !flag {
-		fmt.Printf("hero no = %d 重复！\n", heroNode.no)
+		fmt.Printf("hero no = %d 已存在", hero.no)
 	} else {
-		heroNode.next = temp.next
-		temp.next = heroNode
+		hero.pre = temp
+		hero.next = temp.next
+		if temp.next != nil {
+			temp.next.pre = hero
+		}
+		temp.next = hero
 	}
 }
 
 func DelHero(head *HeroNode, id int) {
 	temp := head
 	flag := false
+
+	// 需要找到编号是id的这个hero
 	for {
 		if temp.next == nil {
 			break
@@ -59,17 +68,22 @@ func DelHero(head *HeroNode, id int) {
 	}
 
 	if flag {
+		// 代表找到了, temp.next是要删除的元素
 		temp.next = temp.next.next
+		if temp.next != nil {
+			temp.next.pre = temp
+		}
 	} else {
-		fmt.Printf("id = %d 不存在\n", id)
+		fmt.Printf("删除错误：id = %d 的英雄不存在\n", id)
 	}
+
 }
 
 func ListHero(head *HeroNode) {
 	temp := head
 
 	if temp.next == nil {
-		fmt.Println("英雄空空如也...")
+		fmt.Println("空空如也...")
 		return
 	}
 
@@ -79,6 +93,33 @@ func ListHero(head *HeroNode) {
 		if temp.next == nil {
 			break
 		}
+	}
+	fmt.Println()
+}
+
+func ListHero2(head *HeroNode) {
+	temp := head
+
+	if temp.next == nil {
+		fmt.Println("空空如也...")
+		return
+	}
+
+	// 先让temp指向链表尾部
+	for {
+		if temp.next == nil {
+			break
+		}
+		temp = temp.next
+	}
+
+	// 向前遍历
+	for {
+		fmt.Printf("[%d %s %s] ==> ", temp.no, temp.name, temp.nickname)
+		if temp.pre == nil || temp.pre.no == 0 {
+			break
+		}
+		temp = temp.pre
 	}
 	fmt.Println()
 }
@@ -111,24 +152,18 @@ func main() {
 		nickname: "打虎英雄",
 	}
 
-	InsertHeroNode2(head, hero3)
-	InsertHeroNode2(head, hero4)
-	InsertHeroNode2(head, hero1)
-	InsertHeroNode2(head, hero2)
-	ListHero(head)
+	InsertHero2(head, hero2)
+	InsertHero2(head, hero4)
+	InsertHero2(head, hero1)
+	InsertHero2(head, hero3)
 
 	DelHero(head, 3)
-	ListHero(head)
-
 	DelHero(head, 2)
-	ListHero(head)
-
-	DelHero(head, 3)
-	ListHero(head)
-
-	DelHero(head, 4)
-	ListHero(head)
-
 	DelHero(head, 1)
+	DelHero(head, 4)
+	DelHero(head, 4)
+
 	ListHero(head)
+	fmt.Println("逆向英雄列表：")
+	ListHero2(head)
 }
